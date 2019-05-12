@@ -31,7 +31,7 @@ public class Paddle {
 
     public Paddle(int screenX, int screenY) {
         length = screenX / 6;
-        height = screenY / 6;
+        height = screenY / 7;
 
         //initializing the width and the height
         screenWidth=screenX;

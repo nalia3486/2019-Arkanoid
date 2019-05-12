@@ -73,17 +73,21 @@ public class MainActivity extends Activity {
         Ball ball;
         Paddle paddle;
 
+        // We want to see screen details
+        Display display = getWindowManager().getDefaultDisplay();
+
+        // Load the resolution into a Point object
+        Point size = new Point();
+
+        int level = 1;
+        boolean endGame = false;
+
         public ArkanoidView(Context context) {
             super(context);
 
             surfaceHolder = getHolder();
             paint = new Paint();
 
-            // We want to see screen details
-            Display display = getWindowManager().getDefaultDisplay();
-
-            // Load the resolution into a Point object
-            Point size = new Point();
             display.getSize(size);
 
             screenX = size.x;
@@ -119,6 +123,11 @@ public class MainActivity extends Activity {
         }
 
         public void createBricksAndRestart() {
+
+            display.getSize(size);
+            screenX = size.x;
+            screenY = size.y;
+
             ball.reset(screenX, screenY);
             //paddle.reset(screenX,screenY);
 
@@ -138,21 +147,24 @@ public class MainActivity extends Activity {
             if (lives == 0) {
                 score = 0;
                 lives = 3;
+                level = 1;
             }
         }
 
         @Override
         public void run() {
             while (playGame) {
-                long startFrameTime = System.currentTimeMillis();
-                if (!paused) {
-                    update();
-                }
-                draw();
+                if(!endGame) {
+                    long startFrameTime = System.currentTimeMillis();
+                    if (!paused) {
+                        update();
+                    }
+                    draw();
 
-                timeThisFrame = System.currentTimeMillis() - startFrameTime;
-                if (timeThisFrame >= 1) {
-                    fps = 1000 / timeThisFrame;
+                    timeThisFrame = System.currentTimeMillis() - startFrameTime;
+                    if (timeThisFrame >= 1) {
+                        fps = 1000 / timeThisFrame;
+                    }
                 }
             }
         }
@@ -233,24 +245,42 @@ public class MainActivity extends Activity {
 
                 paint.setColor(Color.argb(255, 255, 255, 255));
                 paint.setTextSize(70);
-                canvas.drawText("Score: " + score + "   Lives: " + lives, 10, 50, paint);
+                canvas.drawText("Level: " + level + "   Score: " + score + "   Live: " + lives, 10, 50, paint);
+
                 // Won
-                if (score == numBricks * 10) {
+                if (winLevel()) {
                     paint.setTextSize(90);
                     paused = true;
-                    createBricksAndRestart();
-                    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
+                    level++;
+                    if (level==3){
+                        playGame = false;
+                        endGame= true;
+                        canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
+                    }
+                    else{
+                        createBricksAndRestart();
+                    }
                 }
 
                 // Lost
                 else if (lives <1 ) {
                     paint.setTextSize(90);
                     paused = true;
+                    endGame= true;
                     canvas.drawText("PRZEGRANA!", 10, screenY / 2, paint);
                 }
 
                 surfaceHolder.unlockCanvasAndPost(canvas);
             }
+        }
+
+        private boolean winLevel() {
+            for (int i=0; i< numBricks; i++){
+                if (bricks[i].getVisibility()) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public void pause() {
@@ -273,6 +303,12 @@ public class MainActivity extends Activity {
             switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
                     paused = false;
+                    if (endGame) {
+                        endGame=false;
+                        playGame=true;
+                        paused = false;
+                        createBricksAndRestart();
+                    }
                     if (motionEvent.getX() > screenX / 2)
                         paddle.setMovementState(paddle.RIGHT);
                     else paddle.setMovementState(paddle.LEFT);
