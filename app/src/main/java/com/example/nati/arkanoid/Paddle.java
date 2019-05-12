@@ -14,6 +14,10 @@ public class Paddle {
     // Y is the top coordinate
     private float y;
 
+    //this will hold the screen width and the height of the screen
+    private int screenWidth;
+    private int screenHeight;
+
     // This will hold the pixels per second speed of the paddle
     private float paddleSpeed;
 
@@ -28,6 +32,10 @@ public class Paddle {
     public Paddle(int screenX, int screenY) {
         length = screenX / 6;
         height = screenY / 6;
+
+        //initializing the width and the height
+        screenWidth=screenX;
+        screenHeight=screenY;
 
         x = screenX / 2 - length / 2;
         y = screenY - 150;
@@ -45,11 +53,11 @@ public class Paddle {
     }
 
     public void update(long fps) {
-        if (paddleMoving == LEFT) {
+        if(x - paddleSpeed / fps>=10 && paddleMoving == LEFT){
             x = x - paddleSpeed / fps;
         }
 
-        if (paddleMoving == RIGHT) {
+        if(x + paddleSpeed / fps+length<= screenWidth-10 &&  paddleMoving == RIGHT){
             x = x + paddleSpeed / fps;
         }
 

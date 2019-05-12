@@ -113,7 +113,6 @@ public class MainActivity extends Activity {
                 explodeID = soundPool.load(descriptor, 0);
 
             } catch (IOException e) {
-                // Print an error message to the console
                 Log.e("error", "Failed to load sound!");
             }
             createBricksAndRestart();
@@ -190,7 +189,6 @@ public class MainActivity extends Activity {
 
                 if (lives == 0) {
                     paused = true;
-                    createBricksAndRestart();
                 }
             }
 
@@ -214,14 +212,6 @@ public class MainActivity extends Activity {
                 ball.clearObstacleX(screenX - 22);
                 soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
-
-
-
-            // Win!
-            if (score == numBricks * 10) {
-                paused = true;
-                createBricksAndRestart();
-            }
         }
 
         // Draw the newly updated scene
@@ -231,7 +221,6 @@ public class MainActivity extends Activity {
 
                 canvas.drawColor(Color.argb(255, 144, 62, 182));
                 paint.setColor(Color.argb(255, 255, 255, 255));
-
                 canvas.drawRect(paddle.getRect(), paint);
                 canvas.drawRect(ball.getRect(), paint);
                 paint.setColor(Color.argb(255, 90, 200, 70));
@@ -243,21 +232,23 @@ public class MainActivity extends Activity {
                 }
 
                 paint.setColor(Color.argb(255, 255, 255, 255));
-
-                paint.setTextSize(60);
+                paint.setTextSize(70);
                 canvas.drawText("Score: " + score + "   Lives: " + lives, 10, 50, paint);
-
                 // Won
                 if (score == numBricks * 10) {
                     paint.setTextSize(90);
+                    paused = true;
+                    createBricksAndRestart();
                     canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
                 }
 
                 // Lost
-                if (lives <= 0) {
+                else if (lives <1 ) {
                     paint.setTextSize(90);
+                    paused = true;
                     canvas.drawText("PRZEGRANA!", 10, screenY / 2, paint);
                 }
+
                 surfaceHolder.unlockCanvasAndPost(canvas);
             }
         }
@@ -277,7 +268,6 @@ public class MainActivity extends Activity {
             gameThread.start();
         }
 
-        // Detect screen touch
         @Override
         public boolean onTouchEvent(MotionEvent motionEvent) {
             switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
