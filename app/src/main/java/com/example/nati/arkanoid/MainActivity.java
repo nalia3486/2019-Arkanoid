@@ -123,13 +123,8 @@ public class MainActivity extends Activity {
         }
 
         public void createBricksAndRestart() {
-
-            display.getSize(size);
-            screenX = size.x;
-            screenY = size.y;
-
             ball.reset(screenX, screenY);
-            //paddle.reset(screenX,screenY);
+            paddle.reset(screenX, screenY);
 
             int brickWidth = screenX / 8;
             int brickHeight = screenY / 10;
@@ -195,9 +190,14 @@ public class MainActivity extends Activity {
             if (ball.getRect().bottom > screenY) {
                 ball.reverseYVelocity();
                 ball.clearObstacleY(screenY - 2);
-                //tutaj dodać paddle na środku
+
+                //paddle.getX(screenX);
+
                 lives--;
                 soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
+
+                ball.reset(screenX, screenY);
+                //paddle.reset(screenX, screenY);
 
                 if (lives == 0) {
                     paused = true;
@@ -207,7 +207,7 @@ public class MainActivity extends Activity {
             // Bounce the ball back when it hits the top of screen
             if (ball.getRect().top < 0) {
                 ball.reverseYVelocity();
-                ball.clearObstacleY(12);
+                ball.clearObstacleY(24);
                 soundPool.play(beep2ID, 1, 1, 0, 0, 1);
             }
 
@@ -219,9 +219,9 @@ public class MainActivity extends Activity {
             }
 
             // If the ball hits right wall bounce
-            if (ball.getRect().right > screenX - 10) {
+            if (ball.getRect().right > screenX - 20) {
                 ball.reverseXVelocity();
-                ball.clearObstacleX(screenX - 22);
+                ball.clearObstacleX(screenX - 44);
                 soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
@@ -234,7 +234,7 @@ public class MainActivity extends Activity {
                 canvas.drawColor(Color.argb(255, 144, 62, 182));
                 paint.setColor(Color.argb(255, 255, 255, 255));
                 canvas.drawRect(paddle.getRect(), paint);
-                canvas.drawRect(ball.getRect(), paint);
+                canvas.drawOval(ball.getRect(), paint);
                 paint.setColor(Color.argb(255, 90, 200, 70));
 
                 for (int i = 0; i < numBricks; i++) {
@@ -252,8 +252,7 @@ public class MainActivity extends Activity {
                     paint.setTextSize(90);
                     paused = true;
                     level++;
-                    if (level==3){
-                        playGame = false;
+                    if (level==2){
                         endGame= true;
                         canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
                     }

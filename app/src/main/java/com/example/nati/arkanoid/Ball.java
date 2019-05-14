@@ -8,8 +8,8 @@ public class Ball {
     RectF rect;
     float xVelocity;
     float yVelocity;
-    float ballWidth = 10;
-    float ballHeight = 10;
+    float ballWidth = 20;
+    float ballHeight = 20;
 
     public Ball(int screenX, int screenY) {
         // Start the ball travelling straight up at 100 pixels per second
@@ -39,7 +39,7 @@ public class Ball {
 
     public void setRandomXVelocity() {
         Random generator = new Random();
-        int answer = generator.nextInt(2);
+        int answer = generator.nextInt(3);
         if (answer == 0) {
             reverseXVelocity();
         }
@@ -57,8 +57,8 @@ public class Ball {
 
     public void reset(int x, int y) {
         rect.left = x / 2;
-        rect.top = y - 30;
+        rect.top = y - 40;
         rect.right = x / 2 + ballWidth;
-        rect.bottom = y - 30 - ballHeight;
+        rect.bottom = y - 40 - ballHeight;
     }
 }
