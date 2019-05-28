@@ -12,7 +12,7 @@ public class Ball {
     public Ball() {
         // Start the ball travelling straight up at 100 pixels per second
         xVelocity = 200;
-        yVelocity = -400;
+        yVelocity = 400;
         rect = new RectF();
     }
 
@@ -35,36 +35,33 @@ public class Ball {
         xVelocity = -xVelocity;
     }
 
-    public void setXVelocity(float paddle_mid, float hit_place, float length){
+    public void setXVelocity(float paddle_mid, float hit_place, float length) {
         float from_mid_distance = Math.abs(hit_place - paddle_mid);
 
-        if (!(from_mid_distance <length/4)) {
-            xVelocity=300;
-            if (yVelocity>0)
-            yVelocity=300;
-            else yVelocity=-300;
+        if (!(from_mid_distance < length / 4)) {
+            xVelocity = 300;
+            if (yVelocity > 0)
+                yVelocity = 300;
+            else yVelocity = -300;
+        } else {
+            xVelocity = 200;
+            if (yVelocity > 0)
+                yVelocity = 400;
+            else yVelocity = -400;
         }
-        else{
-            xVelocity=200;
-            if (yVelocity>0)
-                yVelocity=400;
-            else yVelocity=-400;
+        if (hit_place < paddle_mid) {
+            reverseXVelocity();
         }
-        if (hit_place < paddle_mid){
-            if (xVelocity > 0)
-                reverseXVelocity();
-        }
-        else if (xVelocity < 0) reverseXVelocity();
     }
 
     public void clearObstacleY(float y) {
         rect.bottom = y;
-        rect.top = y - ballHeight;
+        rect.top = y;
     }
 
     public void clearObstacleX(float x) {
         rect.left = x;
-        rect.right = x + ballWidth;
+        rect.right = x;
     }
 
     public void reset(int x, int y) {
@@ -72,9 +69,11 @@ public class Ball {
         rect.top = y - 40;
         rect.right = x / 2 + ballWidth;
         rect.bottom = y - 40 - ballHeight;
+        xVelocity = 200;
+        yVelocity = 400;
     }
 
-    public float getMidValue(){
-        return (rect.right + rect.left)/2;
+    public float getMidValue() {
+        return (rect.right + rect.left) / 2;
     }
 }
