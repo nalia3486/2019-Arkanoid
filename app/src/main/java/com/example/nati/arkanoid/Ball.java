@@ -2,8 +2,6 @@ package com.example.nati.arkanoid;
 
 import android.graphics.RectF;
 
-import java.util.Random;
-
 public class Ball {
     RectF rect;
     private float xVelocity;
@@ -40,18 +38,18 @@ public class Ball {
     public void setXVelocity(float paddle_mid, float hit_place, float length){
         float from_mid_distance = Math.abs(hit_place - paddle_mid);
 
-//        if (!(from_mid_distance <length/4)) {
-//            xVelocity=300;
-//            if (yVelocity>0)
-//            yVelocity=300;
-//            else yVelocity=-300;
-//        }
-//        else{
-//            xVelocity=200;
-//            if (yVelocity>0)
-//                yVelocity=400;
-//            else yVelocity=-400;
-//        }
+        if (!(from_mid_distance <length/4)) {
+            xVelocity=300;
+            if (yVelocity>0)
+            yVelocity=300;
+            else yVelocity=-300;
+        }
+        else{
+            xVelocity=200;
+            if (yVelocity>0)
+                yVelocity=400;
+            else yVelocity=-400;
+        }
         if (hit_place < paddle_mid){
             if (xVelocity > 0)
                 reverseXVelocity();
