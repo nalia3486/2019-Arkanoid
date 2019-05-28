@@ -65,23 +65,15 @@ public class Paddle {
         rect.right = x + length;
     }
 
-    public void getX(float x){
-        rect.left = x;
-        rect.right = x + length;
-    }
-
-    public void reset(float screenX,float screenY){
-        rect.left = screenX / 2-length/2;
-        rect.top =  screenY-150;
-        rect.right=rect.left+length;
-        rect.bottom=rect.top+length;
-    }
-
     public float getHeight() {
         return height;
     }
 
     public float getLength() {
         return length;
+    }
+
+    public float getMidValue(){
+        return (rect.right + rect.left)/2;
     }
 }

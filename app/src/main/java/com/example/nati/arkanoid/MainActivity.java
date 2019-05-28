@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
             screenY = size.y;
 
             paddle = new Paddle(screenX, screenY);
-            ball = new Ball(screenX, screenY);
+            ball = new Ball();
 
             soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
             try {
@@ -181,7 +181,9 @@ public class MainActivity extends Activity {
             }
             // Check for ball colliding with paddle
             if (RectF.intersects(paddle.getRect(), ball.getRect())) {
-                ball.setRandomXVelocity();
+                float paddleMid = paddle.getMidValue();
+                float ballMid = ball.getMidValue();
+                ball.setXVelocity(paddleMid,ballMid,paddle.getLength());
                 ball.reverseYVelocity();
                 ball.clearObstacleY(paddle.getRect().top - 2);
                 soundPool.play(beep1ID, 1, 1, 0, 0, 1);
@@ -231,11 +233,11 @@ public class MainActivity extends Activity {
             if (surfaceHolder.getSurface().isValid()) {
                 canvas = surfaceHolder.lockCanvas();
 
-                canvas.drawColor(Color.argb(255, 144, 62, 182));
+                canvas.drawColor(Color.argb(255, 21, 168, 209));
                 paint.setColor(Color.argb(255, 255, 255, 255));
                 canvas.drawRect(paddle.getRect(), paint);
                 canvas.drawOval(ball.getRect(), paint);
-                paint.setColor(Color.argb(255, 90, 200, 70));
+                paint.setColor(Color.argb(255, 90, 240, 70));
 
                 for (int i = 0; i < numBricks; i++) {
                     if (bricks[i].getVisibility()) {
