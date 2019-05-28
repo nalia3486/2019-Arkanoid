@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
 
         public void createBricksAndRestart() {
             ball.reset(screenX, screenY);
-            paddle.reset(screenX, screenY);
+            paddle = new Paddle(screenX, screenY);
 
             int brickWidth = screenX / 8;
             int brickHeight = screenY / 10;
@@ -187,7 +187,7 @@ public class MainActivity extends Activity {
                 soundPool.play(beep1ID, 1, 1, 0, 0, 1);
             }
             // Bounce the ball back when it hits the bottom of screen
-            if (ball.getRect().bottom > screenY) {
+            if (ball.getRect().bottom + paddle.getHeight()/3> screenY) {
                 ball.reverseYVelocity();
                 ball.clearObstacleY(screenY - 2);
 
@@ -197,7 +197,7 @@ public class MainActivity extends Activity {
                 soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
 
                 ball.reset(screenX, screenY);
-                //paddle.reset(screenX, screenY);
+                paddle = new Paddle(screenX, screenY);
 
                 if (lives == 0) {
                     paused = true;
