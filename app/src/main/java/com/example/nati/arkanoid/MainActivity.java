@@ -35,8 +35,6 @@ public class MainActivity extends Activity {
     }
 
     class ArkanoidView extends SurfaceView implements Runnable {
-
-        // This is our thread
         Thread gameThread = null;
         SurfaceHolder surfaceHolder;
 
@@ -54,12 +52,10 @@ public class MainActivity extends Activity {
 
         // calculate the fps
         private long timeThisFrame;
-
-        // The size of the screen in pixels
         int screenX;
         int screenY;
 
-        Brick[] bricks = new Brick[200];
+        Brick[] bricks = new Brick[25];
         int numBricks = 0;
 
         SoundPool soundPool;
@@ -74,7 +70,7 @@ public class MainActivity extends Activity {
         Ball ball;
         Paddle paddle;
 
-        // We want to see screen details
+        //see screen details
         Display display = getWindowManager().getDefaultDisplay();
 
         // Load the resolution into a Point object
@@ -98,70 +94,69 @@ public class MainActivity extends Activity {
             ball = new Ball();
 
             soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+
+            beep1ID = music("beep1.ogg", context);
+            beep2ID = music("beep2.ogg", context);
+            beep3ID = music("beep3.ogg", context);
+            loseLifeID = music("loseLife.ogg", context);
+            explodeID = music("explode.ogg", context);
+
+            createBricks();
+        }
+
+        private void resetGame() {
+                score = 0;
+                lives = 3;
+                level = 1;
+        }
+
+        private int music(String s, Context context) {
+            AssetManager assetManager = context.getAssets();
+            AssetFileDescriptor descriptor = null;
             try {
-                AssetManager assetManager = context.getAssets();
-                AssetFileDescriptor descriptor;
-
-                descriptor = assetManager.openFd("beep1.ogg");
-                beep1ID = soundPool.load(descriptor, 0);
-
-                descriptor = assetManager.openFd("beep2.ogg");
-                beep2ID = soundPool.load(descriptor, 0);
-
-                descriptor = assetManager.openFd("beep3.ogg");
-                beep3ID = soundPool.load(descriptor, 0);
-
-                descriptor = assetManager.openFd("loseLife.ogg");
-                loseLifeID = soundPool.load(descriptor, 0);
-
-                descriptor = assetManager.openFd("explode.ogg");
-                explodeID = soundPool.load(descriptor, 0);
-
+                descriptor = assetManager.openFd(s);
             } catch (IOException e) {
                 Log.e("error", "Failed to load sound!");
             }
-            createBricksAndRestart();
+            return soundPool.load(descriptor, 0);
         }
 
-        public void createBricksAndRestart() {
+        public void createBricks() {
             ball.reset(screenX, screenY);
             paddle = new Paddle(screenX, screenY);
 
             int brickWidth = screenX;
             int brickHeight = screenY / 12;
-
-            // We build bricks here
             numBricks = 0;
-            for(int column = 0; column < 8; column++ ){
-                for(int row = 0; row < 3; row ++ ){
-                    bricks[numBricks] = new Brick(row, column, brickWidth/8, brickHeight);
-                    if(bricks[numBricks].getRect().left>0 && bricks[numBricks].getRect().right<screenX)
-                    {
-                        if (numBricks%5==0) bricks[numBricks].hits=1;
-                        else if (numBricks%2==0) bricks[numBricks].hits=2;
-                        else if (numBricks%3==0) bricks[numBricks].hits=3;
-                        else if (numBricks%7==0) bricks[numBricks].hits=4;
-                        else  bricks[numBricks].hits=5;
-                        numBricks ++;
+            Random rand = new Random();
+
+            for (int column = 3; column < 4; column++) {
+                for (int row = 0; row < 1; row++) {
+                    bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
+                    if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
+                        int n = rand.nextInt(5);
+                        bricks[numBricks].hits = n + 1;
+                        numBricks++;
                     }
                 }
-            }
-            // if game over reset scores and lives
-            //dodać tutaj przycisk startu?
-            if (lives == 0) {
-                score = 0;
-                lives = 3;
-                level = 1;
             }
         }
 
         @Override
         public void run() {
             while (playGame) {
-                if(!endGame) {
+                if (!endGame) {
                     long startFrameTime = System.currentTimeMillis();
                     if (!paused) {
-                        update();
+                        paddle.update(fps);
+                        ball.update(fps);
+
+                        collidingWithBrick();
+                        collidingWithPaddle();
+                        ballHitsBottomOfScreen();
+                        ballHitsTopOfScreen();
+                        ballHitsLeftWall();
+                        ballHitsRightWall();
                     }
                     draw();
                     timeThisFrame = System.currentTimeMillis() - startFrameTime;
@@ -172,45 +167,32 @@ public class MainActivity extends Activity {
             }
         }
 
-        public void update() {
-            paddle.update(fps);
-            ball.update(fps);
+        private void ballHitsRightWall() {
+            if (ball.getRect().right > screenX - 20) {
+                ball.reverseXVelocity();
+                ball.clearObstacleX(screenX - 44);
+                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+            }
+        }
 
-            // Check for ball colliding with a brick
-            for (int i = 0; i < numBricks; i++) {
-                if (bricks[i].getVisibility()) {
-                    if (RectF.intersects(bricks[i].getRect(), ball.getRect())) {
-                        bricks[i].hits--;
-                        if(bricks[i].hits==0) {
-                            bricks[i].setInvisible();
-                        }
-                        else {
-                                    switch(bricks[i].hits){
-                                        case 1: paint.setColor(Color.argb(255,255, 0, 255)); break;
-                                        case 2: paint.setColor(Color.argb(255, 0, 0, 255)); break;
-                                        case 3: paint.setColor(Color.argb(255, 255, 0, 0)); break;
-                                        case 4: paint.setColor(Color.argb(255, 0, 255, 0)); break;
-                                        case 5: paint.setColor(Color.argb(255,0,255,255)); break;
-                                    }
-                                    canvas.drawRect(bricks[i].getRect(), paint);
-                        }
-                        ball.reverseYVelocity();
-                        score += 10;
-                        soundPool.play(explodeID, 1, 1, 0, 0, 1);
-                    }
-                }
+        private void ballHitsLeftWall() {
+            if (ball.getRect().left < 0) {
+                ball.reverseXVelocity();
+                ball.clearObstacleX(2);
+                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
-            // Check for ball colliding with paddle
-            if (RectF.intersects(paddle.getRect(), ball.getRect())) {
-                float paddleMid = paddle.getMidValue();
-                float ballMid = ball.getMidValue();
-                ball.setXVelocity(paddleMid,ballMid,paddle.getLength());
+        }
+
+        private void ballHitsTopOfScreen() {
+            if (ball.getRect().top < 0) {
                 ball.reverseYVelocity();
-                ball.clearObstacleY(paddle.getRect().top - 4);
-                soundPool.play(beep1ID, 1, 1, 0, 0, 1);
+                ball.clearObstacleY(24);
+                soundPool.play(beep2ID, 1, 1, 0, 0, 1);
             }
-            // Bounce the ball back when it hits the bottom of screen
-            if (ball.getRect().bottom + paddle.getHeight()/3> screenY) {
+        }
+
+        private void ballHitsBottomOfScreen() {
+            if (ball.getRect().bottom + paddle.getHeight() / 3 > screenY) {
                 ball.reverseYVelocity();
                 ball.clearObstacleY(screenY - 2);
 
@@ -221,26 +203,51 @@ public class MainActivity extends Activity {
                 paddle = new Paddle(screenX, screenY);
                 paused = true;
             }
+        }
 
-            // Bounce the ball back when it hits the top of screen
-            if (ball.getRect().top < 0) {
+        private void collidingWithPaddle() {
+            if (RectF.intersects(paddle.getRect(), ball.getRect())) {
+                float paddleMid = paddle.getMidValue();
+                float ballMid = ball.getMidValue();
+                ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
                 ball.reverseYVelocity();
-                ball.clearObstacleY(24);
-                soundPool.play(beep2ID, 1, 1, 0, 0, 1);
+                ball.clearObstacleY(paddle.getRect().top - 4);
+                soundPool.play(beep1ID, 1, 1, 0, 0, 1);
             }
+        }
 
-            // If the ball hits left wall bounce
-            if (ball.getRect().left < 0) {
-                ball.reverseXVelocity();
-                ball.clearObstacleX(2);
-                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
-            }
-
-            // If the ball hits right wall bounce
-            if (ball.getRect().right > screenX - 20) {
-                ball.reverseXVelocity();
-                ball.clearObstacleX(screenX - 44);
-                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+        private void collidingWithBrick() {
+            for (int i = 0; i < numBricks; i++) {
+                if (bricks[i].getVisibility()) {
+                    if (RectF.intersects(bricks[i].getRect(), ball.getRect())) {
+                        bricks[i].hits--;
+                        if (bricks[i].hits == 0) {
+                            bricks[i].setInvisible();
+                        } else {
+                            switch (bricks[i].hits) {
+                                case 1:
+                                    paint.setColor(Color.argb(255, 255, 0, 255));
+                                    break;
+                                case 2:
+                                    paint.setColor(Color.argb(255, 0, 0, 255));
+                                    break;
+                                case 3:
+                                    paint.setColor(Color.argb(255, 255, 0, 0));
+                                    break;
+                                case 4:
+                                    paint.setColor(Color.argb(255, 0, 255, 0));
+                                    break;
+                                case 5:
+                                    paint.setColor(Color.argb(255, 0, 255, 255));
+                                    break;
+                            }
+                            canvas.drawRect(bricks[i].getRect(), paint);
+                        }
+                        ball.reverseYVelocity();
+                        score += 10;
+                        soundPool.play(explodeID, 1, 1, 0, 0, 1);
+                    }
+                }
             }
         }
 
@@ -255,14 +262,24 @@ public class MainActivity extends Activity {
                 canvas.drawOval(ball.getRect(), paint);
                 paint.setColor(Color.argb(255, 90, 240, 70));
 
-                for(int i = 0; i < numBricks; i++){
-                    if(bricks[i].getVisibility()) {
-                        switch(bricks[i].hits){
-                            case 1: paint.setColor(Color.argb(255,255, 0, 255)); break;
-                            case 2: paint.setColor(Color.argb(255, 0, 0, 255)); break;
-                            case 3: paint.setColor(Color.argb(255, 255, 0, 0)); break;
-                            case 4: paint.setColor(Color.argb(255, 0, 255, 0)); break;
-                            case 5: paint.setColor(Color.argb(255,0,255,255)); break;
+                for (int i = 0; i < numBricks; i++) {
+                    if (bricks[i].getVisibility()) {
+                        switch (bricks[i].hits) {
+                            case 1:
+                                paint.setColor(Color.argb(255, 255, 0, 255));
+                                break;
+                            case 2:
+                                paint.setColor(Color.argb(255, 0, 0, 255));
+                                break;
+                            case 3:
+                                paint.setColor(Color.argb(255, 255, 0, 0));
+                                break;
+                            case 4:
+                                paint.setColor(Color.argb(255, 0, 255, 0));
+                                break;
+                            case 5:
+                                paint.setColor(Color.argb(255, 0, 255, 255));
+                                break;
                         }
                         canvas.drawRect(bricks[i].getRect(), paint);
                     }
@@ -277,29 +294,27 @@ public class MainActivity extends Activity {
                     paint.setTextSize(90);
                     paused = true;
                     level++;
-                    if (level==3){
-                        endGame= true;
-                        canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
-                    }
-                    else{
-                        createBricksAndRestart();
-                    }
+                    //if (level == 3) {
+                    //    endGame = true;
+                    //    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
+                    //} else {
+                        createBricks();
+                    //}
                 }
 
                 // Lost
-                else if (lives <1 ) {
+                else if (lives < 1) {
                     paint.setTextSize(90);
                     paused = true;
-                    endGame= true;
+                    endGame = true;
                     canvas.drawText("PRZEGRANA!", 10, screenY / 2, paint);
                 }
-
                 surfaceHolder.unlockCanvasAndPost(canvas);
             }
         }
 
         private boolean winLevel() {
-            for (int i=0; i< numBricks; i++){
+            for (int i = 0; i < numBricks; i++) {
                 if (bricks[i].getVisibility()) {
                     return false;
                 }
@@ -328,10 +343,13 @@ public class MainActivity extends Activity {
                 case MotionEvent.ACTION_DOWN:
                     paused = false;
                     if (endGame) {
-                        endGame=false;
-                        playGame=true;
+                        endGame = false;
+                        playGame = true;
                         paused = false;
-                        createBricksAndRestart();
+                        createBricks();
+                        if (lives == 0) {
+                            resetGame();
+                        }
                     }
                     if (motionEvent.getX() > screenX / 2)
                         paddle.setMovementState(paddle.RIGHT);
@@ -342,6 +360,10 @@ public class MainActivity extends Activity {
                     break;
             }
             return true;
+        }
+
+        private void afterGame() {
+            canvas.drawText("KONIEC GRY! ZAGRAJ JESZCZE RAZ!", 10, screenY / 2, paint);
         }
     }
 
