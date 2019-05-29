@@ -66,11 +66,11 @@ public class Ball {
 
     public void reset(int x, int y) {
         rect.left = x / 2;
-        rect.top = y - 40;
+        rect.top = y * 0.75f;
         rect.right = x / 2 + ballWidth;
-        rect.bottom = y - 40 - ballHeight;
+        rect.bottom = y * 0.75f - ballHeight;
         xVelocity = 200;
-        yVelocity = 400;
+        yVelocity = -400;
     }
 
     public float getMidValue() {
