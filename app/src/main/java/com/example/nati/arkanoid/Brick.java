@@ -6,7 +6,6 @@ public class Brick {
 
     private RectF rect;
     private boolean isVisible;
-    public int type;
     public int hits;
 
     public Brick(int row, int column, int width, int height) {

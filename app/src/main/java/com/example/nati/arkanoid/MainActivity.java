@@ -130,27 +130,18 @@ public class MainActivity extends Activity {
             int brickWidth = screenX;
             int brickHeight = screenY / 12;
 
-            Random r=new Random();
-
             // We build bricks here
             numBricks = 0;
             for(int column = 0; column < 8; column++ ){
-                for(int row = 2; row < 5; row ++ ){
+                for(int row = 0; row < 3; row ++ ){
                     bricks[numBricks] = new Brick(row, column, brickWidth/8, brickHeight);
                     if(bricks[numBricks].getRect().left>0 && bricks[numBricks].getRect().right<screenX)
                     {
-                        int temp=0;
-
-                        while(temp==0)
-                        {
-                            temp=r.nextInt(7-1);
-                        }
-                        while(numBricks>=3 && bricks[numBricks-3].type==temp)
-                        {
-                            temp=r.nextInt(7-1);
-                        }
-                        bricks[numBricks].type=temp;
-                        bricks[numBricks].hits=bricks[numBricks].type;
+                        if (numBricks%5==0) bricks[numBricks].hits=1;
+                        else if (numBricks%2==0) bricks[numBricks].hits=2;
+                        else if (numBricks%3==0) bricks[numBricks].hits=3;
+                        else if (numBricks%7==0) bricks[numBricks].hits=4;
+                        else  bricks[numBricks].hits=5;
                         numBricks ++;
                     }
                 }
@@ -173,7 +164,6 @@ public class MainActivity extends Activity {
                         update();
                     }
                     draw();
-
                     timeThisFrame = System.currentTimeMillis() - startFrameTime;
                     if (timeThisFrame >= 1) {
                         fps = 1000 / timeThisFrame;
@@ -195,7 +185,14 @@ public class MainActivity extends Activity {
                             bricks[i].setInvisible();
                         }
                         else {
-
+                                    switch(bricks[i].hits){
+                                        case 1: paint.setColor(Color.argb(255,255, 0, 255)); break;
+                                        case 2: paint.setColor(Color.argb(255, 0, 0, 255)); break;
+                                        case 3: paint.setColor(Color.argb(255, 255, 0, 0)); break;
+                                        case 4: paint.setColor(Color.argb(255, 0, 255, 0)); break;
+                                        case 5: paint.setColor(Color.argb(255,0,255,255)); break;
+                                    }
+                                    canvas.drawRect(bricks[i].getRect(), paint);
                         }
                         ball.reverseYVelocity();
                         score += 10;
@@ -260,8 +257,7 @@ public class MainActivity extends Activity {
 
                 for(int i = 0; i < numBricks; i++){
                     if(bricks[i].getVisibility()) {
-
-                        switch(bricks[i].type){
+                        switch(bricks[i].hits){
                             case 1: paint.setColor(Color.argb(255,255, 0, 255)); break;
                             case 2: paint.setColor(Color.argb(255, 0, 0, 255)); break;
                             case 3: paint.setColor(Color.argb(255, 255, 0, 0)); break;
