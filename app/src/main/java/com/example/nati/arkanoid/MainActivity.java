@@ -152,6 +152,11 @@ public class MainActivity extends Activity {
                         ball.update(fps);
 
                         collidingWithBrick();
+                        try {
+                            Thread.sleep(5);
+                        } catch (InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                        }
                         collidingWithPaddle();
                         ballHitsBottomOfScreen();
                         ballHitsTopOfScreen();
@@ -205,28 +210,30 @@ public class MainActivity extends Activity {
             }
         }
 
-        int hit;
+//        int hit=0;
 
         private void collidingWithPaddle() {
             if (intersects(paddle.getRect(), ball.getRect())) {
                 float paddleMid = paddle.getMidValue();
                 float ballMid = ball.getMidValue();
                 ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
-                if (hit == 2) {
-                    ball.reverseXVelocity();
-                } else {
+//                if (hit == 0) {
+//                    ball.reverseXVelocity();
+//                    hit = 0;
+//                } else {
                     ball.reverseYVelocity();
-                }
+//                }
                 ball.clearObstacleY(paddle.getRect().top - 4);
                 soundPool.play(beep1ID, 1, 1, 0, 0, 1);
-            } else {
-                if (hitBrickOnSide(paddle.getRect(), ball.getRect()) != 0) {
-                    hit = 1;
-                }
-                if (hitBrickOnBottom(paddle.getRect(), ball.getRect()) != 0) {
-                    hit = 2;
-                }
             }
+//            else {
+//                if (hitBrickOnSide(paddle.getRect(), ball.getRect()) != 0) {
+//                    hit = 1;
+//                }
+//                if (hitBrickOnBottom(paddle.getRect(), ball.getRect()) != 0) {
+//                    hit = 2;
+//                }
+//            }
         }
 
         public boolean intersects(RectF a, RectF b) {
@@ -283,6 +290,9 @@ public class MainActivity extends Activity {
                         }
                         score += 10;
                         soundPool.play(explodeID, 1, 1, 0, 0, 1);
+//                        for (int k = 0; k < numBricks; k++) {
+//                            hit_point[i] = 0;
+//                        }
                         break;
                     } else {
                         if (hitBrickOnSide(bricks[i].getRect(), ball.getRect()) != 0) {
