@@ -205,24 +205,37 @@ public class MainActivity extends Activity {
             }
         }
 
+        int hit;
+
         private void collidingWithPaddle() {
             if (intersects(paddle.getRect(), ball.getRect())) {
                 float paddleMid = paddle.getMidValue();
                 float ballMid = ball.getMidValue();
                 ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
-                ball.reverseYVelocity();
+                if (hit == 2) {
+                    ball.reverseXVelocity();
+                } else {
+                    ball.reverseYVelocity();
+                }
                 ball.clearObstacleY(paddle.getRect().top - 4);
                 soundPool.play(beep1ID, 1, 1, 0, 0, 1);
+            } else {
+                if (hitBrickOnSide(paddle.getRect(), ball.getRect()) != 0) {
+                    hit = 1;
+                }
+                if (hitBrickOnBottom(paddle.getRect(), ball.getRect()) != 0) {
+                    hit = 2;
+                }
             }
         }
 
         public boolean intersects(RectF a, RectF b) {
-            return a.left < b.right + Ball.ballWidth && b.left < a.right + Ball.ballWidth
+            return a.left < b.right && b.left < a.right
                     && a.top < b.bottom + Ball.ballWidth && b.top < a.bottom + Ball.ballWidth;
         }
 
         public int hitBrickOnSide(RectF a, RectF b) {
-            if (a.left < b.right + Ball.ballWidth && b.left < a.right + Ball.ballWidth)
+            if (a.left < b.right && b.left < a.right)
                 return 1;
             else return 0;
         }
@@ -270,6 +283,7 @@ public class MainActivity extends Activity {
                         }
                         score += 10;
                         soundPool.play(explodeID, 1, 1, 0, 0, 1);
+                        break;
                     } else {
                         if (hitBrickOnSide(bricks[i].getRect(), ball.getRect()) != 0) {
                             hit_point[i] = 1;
