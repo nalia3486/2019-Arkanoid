@@ -130,8 +130,8 @@ public class MainActivity extends Activity {
             numBricks = 0;
             Random rand = new Random();
 
-            for (int column = 3; column < 4; column++) {
-                for (int row = 0; row < 1; row++) {
+            for (int column = 0; column < 8; column++) {
+                for (int row = 0; row < 3; row++) {
                     bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
                     if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
                         int n = rand.nextInt(5);
