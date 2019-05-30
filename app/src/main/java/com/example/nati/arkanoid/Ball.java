@@ -6,8 +6,8 @@ public class Ball {
     RectF rect;
     private float xVelocity;
     private float yVelocity;
-    private float ballWidth = 20;
-    private float ballHeight = 20;
+    static float ballWidth = 20;
+    float ballHeight = 20;
 
     public Ball() {
         // Start the ball travelling straight up at 100 pixels per second

@@ -206,7 +206,7 @@ public class MainActivity extends Activity {
         }
 
         private void collidingWithPaddle() {
-            if (RectF.intersects(paddle.getRect(), ball.getRect())) {
+            if (intersects(paddle.getRect(), ball.getRect())) {
                 float paddleMid = paddle.getMidValue();
                 float ballMid = ball.getMidValue();
                 ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
@@ -216,10 +216,29 @@ public class MainActivity extends Activity {
             }
         }
 
+        public boolean intersects(RectF a, RectF b) {
+            return a.left < b.right + Ball.ballWidth && b.left < a.right + Ball.ballWidth
+                    && a.top < b.bottom + Ball.ballWidth && b.top < a.bottom + Ball.ballWidth;
+        }
+
+        public int hitBrickOnSide(RectF a, RectF b) {
+            if (a.left < b.right + Ball.ballWidth && b.left < a.right + Ball.ballWidth)
+                return 1;
+            else return 0;
+        }
+
+        public int hitBrickOnBottom(RectF a, RectF b) {
+            if (a.top < b.bottom + Ball.ballWidth && b.top < a.bottom + Ball.ballWidth)
+                return 2;
+            else return 0;
+        }
+
+        int[] hit_point = new int[24];
+
         private void collidingWithBrick() {
             for (int i = 0; i < numBricks; i++) {
                 if (bricks[i].getVisibility()) {
-                    if (RectF.intersects(bricks[i].getRect(), ball.getRect())) {
+                    if (intersects(bricks[i].getRect(), ball.getRect())) {
                         bricks[i].hits--;
                         if (bricks[i].hits == 0) {
                             bricks[i].setInvisible();
@@ -243,9 +262,21 @@ public class MainActivity extends Activity {
                             }
                             canvas.drawRect(bricks[i].getRect(), paint);
                         }
-                        ball.reverseYVelocity();
+                        //tego ifa ponizej mozna wywalic i bd dzilalao jak poprzednio
+                        if (hit_point[i] == 2) {
+                            ball.reverseXVelocity();
+                        } else {
+                            ball.reverseYVelocity();
+                        }
                         score += 10;
                         soundPool.play(explodeID, 1, 1, 0, 0, 1);
+                    } else {
+                        if (hitBrickOnSide(bricks[i].getRect(), ball.getRect()) != 0) {
+                            hit_point[i] = 1;
+                        }
+                        if (hitBrickOnBottom(bricks[i].getRect(), ball.getRect()) != 0) {
+                            hit_point[i] = 2;
+                        }
                     }
                 }
             }
