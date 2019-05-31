@@ -15,8 +15,8 @@ public class Paddle {
     private float y;
 
     //this will hold the screen width and the height of the screen
-    private int screenWidth;
-    private int screenHeight;
+    static int screenWidth;
+    static int screenHeight;
 
     // This will hold the pixels per second speed of the paddle
     private float paddleSpeed;
@@ -31,7 +31,7 @@ public class Paddle {
 
     public Paddle(int screenX, int screenY) {
         length = screenX / 6;
-        height = screenY / 6;
+        height = screenY / 25;
 
         //initializing the width and the height
         screenWidth=screenX;
