@@ -1,4 +1,4 @@
-package com.example.nati.arkanoid;
+package activity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,8 +22,14 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.example.nati.arkanoid.R;
+
 import java.io.IOException;
 import java.util.Random;
+
+import models.Ball;
+import models.Brick;
+import models.Paddle;
 
 public class MainActivity extends Activity {
 
@@ -120,6 +126,7 @@ public class MainActivity extends Activity {
                 score = 0;
                 lives = 3;
                 level = 1;
+            createBricks();
             mp4.start();
             bitmap = BitmapFactory.decodeResource(res, R.drawable.back1);
         }
@@ -142,17 +149,53 @@ public class MainActivity extends Activity {
             int brickWidth = screenX;
             int brickHeight = screenY / 12;
             numBricks = 0;
-            Random rand = new Random();
 
-            for (int column = 0; column < 8; column++) {
-                for (int row = 0; row < 3; row++) {
-                    bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
-                    if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
-                        int n = rand.nextInt(5);
-                        bricks[numBricks].hits = n + 1;
-                        numBricks++;
+            int maxColumn;
+            int maxRow ;
+
+            switch(level){
+                case 1:
+                   maxColumn = 8;
+                   maxRow = 4;
+                    for (int column = 0; column < maxColumn; column++) {
+                        for (int row = 1; row < maxRow; row++) {
+                            bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
+                            if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
+                                bricks[numBricks].hits = maxRow - row;
+                                numBricks++;
+                            }
+                        }
                     }
-                }
+                    break;
+                case 2:
+                    maxColumn=7;
+                    maxRow = 4;
+                        for (int row = 0; row < maxRow; row++) {
+                            for (int column = 0; column < maxColumn; column++) {
+                            bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
+                            if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
+                                bricks[numBricks].hits =column+1;
+                                numBricks++;
+                            }
+                        }
+                    maxColumn--;
+                    }
+                    break;
+                default:
+                    maxColumn = 8;
+                    maxRow = 4;
+                    Random rand = new Random();
+                    for (int column = 0; column < maxColumn; column++) {
+                        for (int row = 0; row < maxRow; row++) {
+                            bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
+                            if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
+                                int n = rand.nextInt(5);
+                                bricks[numBricks].hits = n + 1;
+                                numBricks++;
+                            }
+                        }
+                    }
+                    break;
             }
         }
 
@@ -191,7 +234,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().right > screenX - 20) {
                 ball.reverseXVelocity();
                 ball.clearObstacleX(screenX - 44);
-                //soundPool.play(beep3ID, back1, back1, 0, 0, back1);
+                //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
 
@@ -199,7 +242,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().left < 0) {
                 ball.reverseXVelocity();
                 ball.clearObstacleX(2);
-                //soundPool.play(beep3ID, back1, back1, 0, 0, back1);
+                //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
 
@@ -207,7 +250,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().top < 0) {
                 ball.reverseYVelocity();
                 ball.clearObstacleY(24);
-                //soundPool.play(beep2ID, back1, back1, 0, 0, back1);
+                //soundPool.play(beep2ID, 1, 1, 0, 0, 1);
             }
         }
 
@@ -217,7 +260,7 @@ public class MainActivity extends Activity {
                 ball.clearObstacleY(screenY - 2);
 
                 lives--;
-                //soundPool.play(loseLifeID, back1, back1, 0, 0, back1);
+                //soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
                 mp3.start();
 
                 ball.reset(screenX, screenY);
@@ -233,7 +276,7 @@ public class MainActivity extends Activity {
                 ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
                 ball.reverseYVelocity();
                 ball.clearObstacleY(paddle.getRect().top - 4);
-                //soundPool.play(beep1ID, back1, back1, 0, 0, back1);
+                //soundPool.play(beep1ID, 1, 1, 0, 0, 1);
                 mp1.start();
             }
         }
@@ -265,24 +308,7 @@ public class MainActivity extends Activity {
                         if (bricks[i].hits == 0) {
                             bricks[i].setInvisible();
                         } else {
-                            switch (bricks[i].hits) {
-                                case 1:
-                                    paint.setColor(Color.argb(255, 255, 0, 255));
-                                    break;
-                                case 2:
-                                    paint.setColor(Color.argb(255, 0, 0, 255));
-                                    break;
-                                case 3:
-                                    paint.setColor(Color.argb(255, 255, 0, 0));
-                                    break;
-                                case 4:
-                                    paint.setColor(Color.argb(255, 0, 255, 0));
-                                    break;
-                                case 5:
-                                    paint.setColor(Color.argb(255, 0, 255, 255));
-                                    break;
-                            }
-                            canvas.drawRect(bricks[i].getRect(), paint);
+                            addColorToBricks(i);
                         }
                         //tego ifa ponizej mozna wywalic i bd dzilalao jak poprzednio
                         if (hit_point[i] == 2) {
@@ -291,7 +317,14 @@ public class MainActivity extends Activity {
                             ball.reverseYVelocity();
                         }
                         score += 10;
-                        //soundPool.play(explodeID, back1, back1, 0, 0, back1);
+
+                        Random rand = new Random();
+                        int n = rand.nextInt(5);
+                        if (n==2){
+                            //bonus
+                        }
+
+                        //soundPool.play(explodeID, 1, 1, 0, 0, 1);
                         mp2.start();
                         break;
                     } else {
@@ -306,10 +339,38 @@ public class MainActivity extends Activity {
             }
         }
 
+        private void addColorToBricks(int i) {
+            switch (bricks[i].hits) {
+                case 1:
+                    paint.setColor(Color.argb(255, 255, 0, 255));
+                    break;
+                case 2:
+                    paint.setColor(Color.argb(255, 0, 0, 255));
+                    break;
+                case 3:
+                    paint.setColor(Color.argb(255, 255, 0, 0));
+                    break;
+                case 4:
+                    paint.setColor(Color.argb(255, 0, 255, 0));
+                    break;
+                case 5:
+                    paint.setColor(Color.argb(255, 0, 255, 255));
+                    break;
+                case 6:
+                    paint.setColor(Color.argb(255, 255, 255, 0));
+                    break;
+                default:
+                    paint.setColor(Color.argb(255, 120, 120, 120));
+                    break;
+            }
+            canvas.drawRect(bricks[i].getRect(), paint);
+        }
+
         // Draw the newly updated scene
         public void draw() {
             if (surfaceHolder.getSurface().isValid()) {
                 canvas = surfaceHolder.lockCanvas();
+
                 canvas.drawColor(Color.argb(255, 21, 168, 209));
                 canvas.drawBitmap(bitmap, 0, 0, null);
                 paint.setColor(Color.argb(255, 255, 255, 255));
@@ -319,24 +380,7 @@ public class MainActivity extends Activity {
 
                 for (int i = 0; i < numBricks; i++) {
                     if (bricks[i].getVisibility()) {
-                        switch (bricks[i].hits) {
-                            case 1:
-                                paint.setColor(Color.argb(255, 255, 0, 255));
-                                break;
-                            case 2:
-                                paint.setColor(Color.argb(255, 0, 0, 255));
-                                break;
-                            case 3:
-                                paint.setColor(Color.argb(255, 255, 0, 0));
-                                break;
-                            case 4:
-                                paint.setColor(Color.argb(255, 0, 255, 0));
-                                break;
-                            case 5:
-                                paint.setColor(Color.argb(255, 0, 255, 255));
-                                break;
-                        }
-                        canvas.drawRect(bricks[i].getRect(), paint);
+                        addColorToBricks(i);
                     }
                 }
 
@@ -360,7 +404,7 @@ public class MainActivity extends Activity {
                     //    endGame = true;
                     //    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
                     //} else {
-                        createBricks();
+                    createBricks();
                     //}
                 }
 
@@ -408,10 +452,10 @@ public class MainActivity extends Activity {
                         endGame = false;
                         playGame = true;
                         paused = false;
-                        createBricks();
                         if (lives == 0) {
                             resetGame();
                         }
+                        else createBricks();
                     }
                     if (motionEvent.getX() > screenX / 2)
                         paddle.setMovementState(paddle.RIGHT);

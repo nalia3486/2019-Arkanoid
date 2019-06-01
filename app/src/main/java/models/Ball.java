@@ -1,4 +1,4 @@
-package com.example.nati.arkanoid;
+package models;
 
 import android.graphics.RectF;
 
@@ -6,7 +6,7 @@ public class Ball {
     RectF rect;
     private float xVelocity;
     private float yVelocity;
-    static float ballWidth = Paddle.screenHeight / 45;
+    public static float ballWidth = Paddle.screenHeight / 45;
     float ballHeight = ballWidth;
     float x1 = Paddle.screenHeight / 3;
     float y1 = Paddle.screenHeight / 1.5f;

@@ -1,4 +1,4 @@
-package com.example.nati.arkanoid;
+package models;
 
 import android.graphics.RectF;
 
