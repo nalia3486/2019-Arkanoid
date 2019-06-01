@@ -155,7 +155,9 @@ public class MainActivity extends Activity {
             numBricks = 0;
 
             int maxColumn;
-            int maxRow ;
+            int maxRow;
+
+            Random ra = new Random();
 
             switch(level){
                 case 1:
@@ -187,14 +189,13 @@ public class MainActivity extends Activity {
                     break;
                 default:
                     maxColumn = 8;
-                    maxRow = 4;
-                    Random rand = new Random();
+                    maxRow = 3;
                     for (int column = 0; column < maxColumn; column++) {
                         for (int row = 0; row < maxRow; row++) {
                             bricks[numBricks] = new Brick(row, column, brickWidth / 8, brickHeight);
                             if (bricks[numBricks].getRect().left > 0 && bricks[numBricks].getRect().right < screenX) {
-                                int n = rand.nextInt(5);
-                                bricks[numBricks].hits = n + 1;
+                                int k = ra.nextInt(5);
+                                bricks[numBricks].hits = k + 1;
                                 numBricks++;
                             }
                         }
@@ -223,11 +224,8 @@ public class MainActivity extends Activity {
                         } catch (InterruptedException ex) {
                             Thread.currentThread().interrupt();
                         }
-                        collidingWithPaddle();
-                        ballHitsBottomOfScreen();
-                        ballHitsTopOfScreen();
-                        ballHitsLeftWall();
-                        ballHitsRightWall();
+                        ballColliding(ball);
+                        ballHitsBottomOfScreen(ball);
                     }
                     draw();
                     timeThisFrame = System.currentTimeMillis() - startFrameTime;
@@ -238,52 +236,58 @@ public class MainActivity extends Activity {
             }
         }
 
-        private void ballHitsRightWall() {
-            if (ball.getRect().right > screenX - 20) {
-                ball.reverseXVelocity();
-                ball.clearObstacleX(screenX - 44);
+        private void ballColliding(Ball b) {
+            collidingWithPaddle(b);
+            ballHitsTopOfScreen(b);
+            ballHitsLeftWall(b);
+            ballHitsRightWall(b);
+        }
+
+        private void ballHitsRightWall(Ball b) {
+            if (b.getRect().right > screenX - 20) {
+                b.reverseXVelocity();
+                b.clearObstacleX(screenX - 44);
                 //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
 
-        private void ballHitsLeftWall() {
-            if (ball.getRect().left < 0) {
-                ball.reverseXVelocity();
-                ball.clearObstacleX(2);
+        private void ballHitsLeftWall(Ball b) {
+            if (b.getRect().left < 0) {
+                b.reverseXVelocity();
+                b.clearObstacleX(2);
                 //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
 
-        private void ballHitsTopOfScreen() {
-            if (ball.getRect().top < 0) {
-                ball.reverseYVelocity();
-                ball.clearObstacleY(24);
+        private void ballHitsTopOfScreen(Ball b) {
+            if (b.getRect().top < 0) {
+                b.reverseYVelocity();
+                b.clearObstacleY(24);
                 //soundPool.play(beep2ID, 1, 1, 0, 0, 1);
             }
         }
 
-        private void ballHitsBottomOfScreen() {
-            if (ball.getRect().bottom + paddle.getHeight() / 3 > screenY) {
-                ball.reverseYVelocity();
-                ball.clearObstacleY(screenY - 2);
+        private void ballHitsBottomOfScreen(Ball b) {
+            if (b.getRect().bottom + paddle.getHeight() / 3 > screenY) {
+                b.reverseYVelocity();
+                b.clearObstacleY(screenY - 2);
+                    lives--;
+                    //soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
+                    mp3.start();
 
-                lives--;
-                //soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
-                mp3.start();
-
-                ball.reset(screenX, screenY);
-                paddle = new Paddle(screenX, screenY);
-                paused = true;
+                    b.reset(screenX, screenY);
+                    paddle = new Paddle(screenX, screenY);
+                    paused = true;
             }
         }
 
-        private void collidingWithPaddle() {
-            if (intersects(paddle.getRect(), ball.getRect())) {
+        private void collidingWithPaddle(Ball b) {
+            if (intersects(paddle.getRect(), b.getRect())) {
                 float paddleMid = paddle.getMidValue();
-                float ballMid = ball.getMidValue();
-                ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
-                ball.reverseYVelocity();
-                ball.clearObstacleY(paddle.getRect().top - 4);
+                float ballMid = b.getMidValue();
+                b.setXVelocity(paddleMid, ballMid, paddle.getLength());
+                b.reverseYVelocity();
+                b.clearObstacleY(paddle.getRect().top - 4);
                 //soundPool.play(beep1ID, 1, 1, 0, 0, 1);
                 mp1.start();
             }
@@ -292,7 +296,27 @@ public class MainActivity extends Activity {
         private void collidingWithBonus() {
             if (intersects(paddle.getRect(), bonus.getRect())) {
                 flag = false;
-                paddle.setLength(2, screenX);
+                switch(bonus.type){
+                    case 1:
+                        paddle.setLength(2, screenX);
+                         break;
+                    case 2:
+                        lives++;
+                        break;
+                    case 3:
+                        ball.slowBall();
+                        break;
+//                    default:
+//                        newBalls = true;
+//                        ball2 = new Ball();
+//                        ball3 = new Ball();
+//                        ball2.reset(screenX-50, screenY-100);
+//                        ball2.reset(screenX, screenY);
+//                        break;
+//                    default:
+//                        nextLevel();
+//                        break;
+                }
             }
 
             //jeśli bonus nie zostanie złapany
@@ -339,18 +363,12 @@ public class MainActivity extends Activity {
                         score += 10;
 
                         if (flag==false){
-                            Random rand = new Random();
-                            int n = rand.nextInt(8);
+                            Random r = new Random();
+                            int n = r.nextInt(8);
                             bonus = new Bonus(bricks[i].getRect());
                             flag = true;
-                            switch (n){
-                                case 1:
-                                    bonus.type=1;
-                                    break;
-                                case 2:
-                                    bonus.type=2;
-                                    break;
-                            }
+                            bonus.type=n;
+
                         }
 
                         //soundPool.play(explodeID, 1, 1, 0, 0, 1);
@@ -374,7 +392,7 @@ public class MainActivity extends Activity {
                     paint.setColor(Color.argb(255, 255, 0, 255));
                     break;
                 case 2:
-                    paint.setColor(Color.argb(255, 0, 0, 255));
+                    paint.setColor(Color.argb(255, 102, 51, 0));
                     break;
                 case 3:
                     paint.setColor(Color.argb(255, 255, 0, 0));
@@ -407,21 +425,25 @@ public class MainActivity extends Activity {
                 canvas.drawOval(ball.getRect(), paint);
                 paint.setColor(Color.argb(255, 90, 240, 70));
 
-
                 if (flag==true){
                     switch (bonus.type){
                         case 1:
-                            bonus.type=1;
-                            paint.setColor(Color.argb(255, 0, 0, 0));
+                            paint.setColor(Color.argb(255, 255, 255, 255));
                             break;
                         case 2:
-                            bonus.type=2;
-                            paint.setColor(Color.argb(255, 200, 200, 200));
+                            paint.setColor(Color.argb(255, 255, 10, 10));
                             break;
+                        case 3:
+                            paint.setColor(Color.argb(255, 0, 0, 0));
+                            break;
+                        case 4:
+                            paint.setColor(Color.argb(255, 255, 0, 200));
+                            break;
+                        default:
+                            paint.setColor(Color.argb(255, 0, 200, 80));
                     }
                 canvas.drawRect(bonus.getRect(), paint);
                 }
-
 
                 for (int i = 0; i < numBricks; i++) {
                     if (bricks[i].getVisibility()) {
@@ -435,22 +457,7 @@ public class MainActivity extends Activity {
 
                 // Won
                 if (winLevel()) {
-                    paint.setTextSize(90);
-                    paused = true;
-                    level++;
-                    mp4.start();
-                    if (level % 3 == 2)
-                        bitmap = BitmapFactory.decodeResource(res, R.drawable.back2);
-                    else if (level % 3 == 0)
-                        bitmap = BitmapFactory.decodeResource(res, R.drawable.back3);
-                    else
-                        bitmap = BitmapFactory.decodeResource(res, R.drawable.back1);
-                    //if (level == 3) {
-                    //    endGame = true;
-                    //    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
-                    //} else {
-                    createBricks();
-                    //}
+                    nextLevel();
                 }
 
                 // Lost
@@ -462,6 +469,26 @@ public class MainActivity extends Activity {
                 }
                 surfaceHolder.unlockCanvasAndPost(canvas);
             }
+        }
+
+        private void nextLevel() {
+            paint.setTextSize(90);
+            paused = true;
+            level++;
+            mp4.start();
+
+            if (level % 3 == 2)
+                bitmap = BitmapFactory.decodeResource(res, R.drawable.back2);
+            else if (level % 3 == 0)
+                bitmap = BitmapFactory.decodeResource(res, R.drawable.back3);
+            else
+                bitmap = BitmapFactory.decodeResource(res, R.drawable.back1);
+            //if (level == 3) {
+            //    endGame = true;
+            //    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
+            //} else {
+            createBricks();
+            //}
         }
 
         private boolean winLevel() {
@@ -497,6 +524,7 @@ public class MainActivity extends Activity {
                         endGame = false;
                         playGame = true;
                         paused = false;
+                        flag = false;
                         if (lives == 0) {
                             resetGame();
                         }

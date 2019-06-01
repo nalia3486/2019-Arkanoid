@@ -13,12 +13,15 @@ public class Ball {
     float x2 = x1 * 1.5f;
     float y2 = y1 * 0.75f;
 
+    boolean status;
+
 
     public Ball() {
         // Start the ball travelling straight up at 100 pixels per second
         xVelocity = 200;
         yVelocity = 400;
         rect = new RectF();
+        status = false;
     }
 
     public RectF getRect() {
@@ -80,5 +83,27 @@ public class Ball {
 
     public float getMidValue() {
         return (rect.right + rect.left) / 2;
+    }
+
+    public void slowBall(){
+//        if (yVelocity > 0)
+//            yVelocity = 200;
+//        else yVelocity =-200;
+//        xVelocity = 100;
+//        x2/=2;
+        xVelocity = xVelocity/2;
+        yVelocity = yVelocity/2;
+    }
+    public void normalball(){
+        xVelocity*=2;
+        yVelocity*=2;
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }
