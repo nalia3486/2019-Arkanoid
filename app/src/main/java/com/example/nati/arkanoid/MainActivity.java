@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -61,6 +64,9 @@ public class MainActivity extends Activity {
         MediaPlayer mp3 = MediaPlayer.create(MainActivity.this, R.raw.a3);
         MediaPlayer mp4 = MediaPlayer.create(MainActivity.this, R.raw.levelstart);
 
+        Resources res = getResources();
+        Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.back1);
+
         Brick[] bricks = new Brick[25];
         int numBricks = 0;
 
@@ -115,6 +121,7 @@ public class MainActivity extends Activity {
                 lives = 3;
                 level = 1;
             mp4.start();
+            bitmap = BitmapFactory.decodeResource(res, R.drawable.back1);
         }
 
         private int music(String s, Context context) {
@@ -184,7 +191,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().right > screenX - 20) {
                 ball.reverseXVelocity();
                 ball.clearObstacleX(screenX - 44);
-                //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep3ID, back1, back1, 0, 0, back1);
             }
         }
 
@@ -192,7 +199,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().left < 0) {
                 ball.reverseXVelocity();
                 ball.clearObstacleX(2);
-                //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep3ID, back1, back1, 0, 0, back1);
             }
         }
 
@@ -200,7 +207,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().top < 0) {
                 ball.reverseYVelocity();
                 ball.clearObstacleY(24);
-                //soundPool.play(beep2ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep2ID, back1, back1, 0, 0, back1);
             }
         }
 
@@ -210,7 +217,7 @@ public class MainActivity extends Activity {
                 ball.clearObstacleY(screenY - 2);
 
                 lives--;
-                //soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
+                //soundPool.play(loseLifeID, back1, back1, 0, 0, back1);
                 mp3.start();
 
                 ball.reset(screenX, screenY);
@@ -226,7 +233,7 @@ public class MainActivity extends Activity {
                 ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
                 ball.reverseYVelocity();
                 ball.clearObstacleY(paddle.getRect().top - 4);
-                //soundPool.play(beep1ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep1ID, back1, back1, 0, 0, back1);
                 mp1.start();
             }
         }
@@ -284,7 +291,7 @@ public class MainActivity extends Activity {
                             ball.reverseYVelocity();
                         }
                         score += 10;
-                        //soundPool.play(explodeID, 1, 1, 0, 0, 1);
+                        //soundPool.play(explodeID, back1, back1, 0, 0, back1);
                         mp2.start();
                         break;
                     } else {
@@ -303,8 +310,8 @@ public class MainActivity extends Activity {
         public void draw() {
             if (surfaceHolder.getSurface().isValid()) {
                 canvas = surfaceHolder.lockCanvas();
-
                 canvas.drawColor(Color.argb(255, 21, 168, 209));
+                canvas.drawBitmap(bitmap, 0, 0, null);
                 paint.setColor(Color.argb(255, 255, 255, 255));
                 canvas.drawRect(paddle.getRect(), paint);
                 canvas.drawOval(ball.getRect(), paint);
@@ -343,6 +350,12 @@ public class MainActivity extends Activity {
                     paused = true;
                     level++;
                     mp4.start();
+                    if (level % 3 == 2)
+                        bitmap = BitmapFactory.decodeResource(res, R.drawable.back2);
+                    else if (level % 3 == 0)
+                        bitmap = BitmapFactory.decodeResource(res, R.drawable.back3);
+                    else
+                        bitmap = BitmapFactory.decodeResource(res, R.drawable.back1);
                     //if (level == 3) {
                     //    endGame = true;
                     //    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);

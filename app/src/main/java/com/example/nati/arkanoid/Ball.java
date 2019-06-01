@@ -8,8 +8,8 @@ public class Ball {
     private float yVelocity;
     static float ballWidth = Paddle.screenHeight / 45;
     float ballHeight = ballWidth;
-    float x1 = Paddle.screenHeight / 4;
-    float y1 = Paddle.screenHeight / 2;
+    float x1 = Paddle.screenHeight / 3;
+    float y1 = Paddle.screenHeight / 1.5f;
     float x2 = x1 * 1.5f;
     float y2 = y1 * 0.75f;
 

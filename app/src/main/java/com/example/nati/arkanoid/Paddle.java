@@ -41,7 +41,7 @@ public class Paddle {
         y = screenY - height ;
 
         rect = new RectF(x, y, x + length, y + height);
-        paddleSpeed = screenX / 3;
+        paddleSpeed = screenX / 2.5f;
     }
 
     public RectF getRect() {
