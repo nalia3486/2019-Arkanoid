@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
@@ -55,6 +56,11 @@ public class MainActivity extends Activity {
         int screenX;
         int screenY;
 
+        MediaPlayer mp1 = MediaPlayer.create(MainActivity.this, R.raw.a1);
+        MediaPlayer mp2 = MediaPlayer.create(MainActivity.this, R.raw.a2);
+        MediaPlayer mp3 = MediaPlayer.create(MainActivity.this, R.raw.a3);
+        MediaPlayer mp4 = MediaPlayer.create(MainActivity.this, R.raw.levelstart);
+
         Brick[] bricks = new Brick[25];
         int numBricks = 0;
 
@@ -95,7 +101,7 @@ public class MainActivity extends Activity {
 
             soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
 
-            beep1ID = music("beep1.ogg", context);
+            beep1ID = music("a6.ogg", context);
             beep2ID = music("beep2.ogg", context);
             beep3ID = music("beep3.ogg", context);
             loseLifeID = music("loseLife.ogg", context);
@@ -108,6 +114,7 @@ public class MainActivity extends Activity {
                 score = 0;
                 lives = 3;
                 level = 1;
+            mp4.start();
         }
 
         private int music(String s, Context context) {
@@ -144,6 +151,7 @@ public class MainActivity extends Activity {
 
         @Override
         public void run() {
+            mp4.start();
             while (playGame) {
                 if (!endGame) {
                     long startFrameTime = System.currentTimeMillis();
@@ -176,7 +184,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().right > screenX - 20) {
                 ball.reverseXVelocity();
                 ball.clearObstacleX(screenX - 44);
-                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
 
@@ -184,7 +192,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().left < 0) {
                 ball.reverseXVelocity();
                 ball.clearObstacleX(2);
-                soundPool.play(beep3ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep3ID, 1, 1, 0, 0, 1);
             }
         }
 
@@ -192,7 +200,7 @@ public class MainActivity extends Activity {
             if (ball.getRect().top < 0) {
                 ball.reverseYVelocity();
                 ball.clearObstacleY(24);
-                soundPool.play(beep2ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep2ID, 1, 1, 0, 0, 1);
             }
         }
 
@@ -202,7 +210,8 @@ public class MainActivity extends Activity {
                 ball.clearObstacleY(screenY - 2);
 
                 lives--;
-                soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
+                //soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
+                mp3.start();
 
                 ball.reset(screenX, screenY);
                 paddle = new Paddle(screenX, screenY);
@@ -210,30 +219,16 @@ public class MainActivity extends Activity {
             }
         }
 
-//        int hit=0;
-
         private void collidingWithPaddle() {
             if (intersects(paddle.getRect(), ball.getRect())) {
                 float paddleMid = paddle.getMidValue();
                 float ballMid = ball.getMidValue();
                 ball.setXVelocity(paddleMid, ballMid, paddle.getLength());
-//                if (hit == 0) {
-//                    ball.reverseXVelocity();
-//                    hit = 0;
-//                } else {
-                    ball.reverseYVelocity();
-//                }
+                ball.reverseYVelocity();
                 ball.clearObstacleY(paddle.getRect().top - 4);
-                soundPool.play(beep1ID, 1, 1, 0, 0, 1);
+                //soundPool.play(beep1ID, 1, 1, 0, 0, 1);
+                mp1.start();
             }
-//            else {
-//                if (hitBrickOnSide(paddle.getRect(), ball.getRect()) != 0) {
-//                    hit = 1;
-//                }
-//                if (hitBrickOnBottom(paddle.getRect(), ball.getRect()) != 0) {
-//                    hit = 2;
-//                }
-//            }
         }
 
         public boolean intersects(RectF a, RectF b) {
@@ -289,10 +284,8 @@ public class MainActivity extends Activity {
                             ball.reverseYVelocity();
                         }
                         score += 10;
-                        soundPool.play(explodeID, 1, 1, 0, 0, 1);
-//                        for (int k = 0; k < numBricks; k++) {
-//                            hit_point[i] = 0;
-//                        }
+                        //soundPool.play(explodeID, 1, 1, 0, 0, 1);
+                        mp2.start();
                         break;
                     } else {
                         if (hitBrickOnSide(bricks[i].getRect(), ball.getRect()) != 0) {
@@ -349,6 +342,7 @@ public class MainActivity extends Activity {
                     paint.setTextSize(90);
                     paused = true;
                     level++;
+                    mp4.start();
                     //if (level == 3) {
                     //    endGame = true;
                     //    canvas.drawText("WYGRANA!", 10, screenY / 2, paint);
