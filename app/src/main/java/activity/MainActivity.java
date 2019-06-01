@@ -354,7 +354,7 @@ public class MainActivity extends Activity {
                         } else {
                             addColorToBricks(i);
                         }
-                        //tego ifa ponizej mozna wywalic i bd dzilalao jak poprzednio
+
                         if (hit_point[i] == 2) {
                             ball.reverseXVelocity();
                         } else {
@@ -368,7 +368,6 @@ public class MainActivity extends Activity {
                             bonus = new Bonus(bricks[i].getRect());
                             flag = true;
                             bonus.type=n;
-
                         }
 
                         //soundPool.play(explodeID, 1, 1, 0, 0, 1);

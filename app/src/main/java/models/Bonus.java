@@ -9,8 +9,8 @@ public class Bonus {
     public int type;
 
     public Bonus(RectF brickRect){
-        length = brickRect.left/4 - brickRect.right/4;
-        rect = new RectF(brickRect.left/4,brickRect.top/4,brickRect.right/4,brickRect.bottom/4);
+        length = (brickRect.right - brickRect.left) / 3;
+        rect = new RectF(brickRect.left + length, brickRect.top / 4, brickRect.right - length, brickRect.bottom / 4);
         yVelocity = 200;
     }
 
@@ -22,4 +22,5 @@ public class Bonus {
         rect.top = rect.top + (yVelocity / fps);
         rect.bottom = rect.top - length + (yVelocity / fps);
     }
+
 }
