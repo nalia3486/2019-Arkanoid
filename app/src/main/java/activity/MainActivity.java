@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import models.Ball;
+import models.Bonus;
 import models.Brick;
 import models.Paddle;
 
@@ -87,6 +88,9 @@ public class MainActivity extends Activity {
 
         Ball ball;
         Paddle paddle;
+        Bonus bonus;
+
+        boolean flag = false;
 
         //see screen details
         Display display = getWindowManager().getDefaultDisplay();
@@ -208,6 +212,10 @@ public class MainActivity extends Activity {
                     if (!paused) {
                         paddle.update(fps);
                         ball.update(fps);
+                        if (flag == true) {
+                            bonus.update(fps);
+                            collidingWithBonus();
+                        }
 
                         collidingWithBrick();
                         try {
@@ -281,6 +289,18 @@ public class MainActivity extends Activity {
             }
         }
 
+        private void collidingWithBonus() {
+            if (intersects(paddle.getRect(), bonus.getRect())) {
+                flag = false;
+                paddle.setLength(2, screenX);
+            }
+
+            //jeśli bonus nie zostanie złapany
+            else if (bonus.getRect().bottom  > screenY) {
+                flag=false;
+            }
+        }
+
         public boolean intersects(RectF a, RectF b) {
             return a.left < b.right && b.left < a.right
                     && a.top < b.bottom + Ball.ballWidth && b.top < a.bottom + Ball.ballWidth;
@@ -318,10 +338,19 @@ public class MainActivity extends Activity {
                         }
                         score += 10;
 
-                        Random rand = new Random();
-                        int n = rand.nextInt(5);
-                        if (n==2){
-                            //bonus
+                        if (flag==false){
+                            Random rand = new Random();
+                            int n = rand.nextInt(8);
+                            bonus = new Bonus(bricks[i].getRect());
+                            flag = true;
+                            switch (n){
+                                case 1:
+                                    bonus.type=1;
+                                    break;
+                                case 2:
+                                    bonus.type=2;
+                                    break;
+                            }
                         }
 
                         //soundPool.play(explodeID, 1, 1, 0, 0, 1);
@@ -377,6 +406,22 @@ public class MainActivity extends Activity {
                 canvas.drawRect(paddle.getRect(), paint);
                 canvas.drawOval(ball.getRect(), paint);
                 paint.setColor(Color.argb(255, 90, 240, 70));
+
+
+                if (flag==true){
+                    switch (bonus.type){
+                        case 1:
+                            bonus.type=1;
+                            paint.setColor(Color.argb(255, 0, 0, 0));
+                            break;
+                        case 2:
+                            bonus.type=2;
+                            paint.setColor(Color.argb(255, 200, 200, 200));
+                            break;
+                    }
+                canvas.drawRect(bonus.getRect(), paint);
+                }
+
 
                 for (int i = 0; i < numBricks; i++) {
                     if (bricks[i].getVisibility()) {

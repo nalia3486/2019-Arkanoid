@@ -44,6 +44,21 @@ public class Paddle {
         paddleSpeed = screenX / 2.5f;
     }
 
+    public Paddle(int screenX, int screenY, int bonus) {
+        length = screenX / 6;
+        height = screenY / 25;
+
+        //initializing the width and the height
+        screenWidth=screenX;
+        screenHeight=screenY;
+
+        x = screenX / 2 - length / 2;
+        y = screenY - height ;
+
+        rect = new RectF(x, y, x + length, y + height);
+        paddleSpeed = screenX / 2.5f;
+    }
+
     public RectF getRect() {
         return rect;
     }
@@ -75,5 +90,10 @@ public class Paddle {
 
     public float getMidValue(){
         return (rect.right + rect.left)/2;
+    }
+
+    public void setLength(int bonus, int screenX) {
+        length = screenX / 6;
+        length = length*bonus;
     }
 }
