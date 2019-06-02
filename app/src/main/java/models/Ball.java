@@ -12,16 +12,13 @@ public class Ball {
     float y1 = Paddle.screenHeight / 1.5f;
     float x2 = x1 * 1.5f;
     float y2 = y1 * 0.75f;
-
-    boolean status;
-
+    private int howFastIsBall = 1;
 
     public Ball() {
         // Start the ball travelling straight up at 100 pixels per second
         xVelocity = 200;
         yVelocity = 400;
         rect = new RectF();
-        status = false;
     }
 
     public RectF getRect() {
@@ -45,7 +42,6 @@ public class Ball {
 
     public void setXVelocity(float paddle_mid, float hit_place, float length) {
         float from_mid_distance = Math.abs(hit_place - paddle_mid);
-
         if (!(from_mid_distance < length / 4)) {
             xVelocity = x2;
             if (yVelocity > 0)
@@ -60,6 +56,10 @@ public class Ball {
         if (hit_place < paddle_mid) {
             reverseXVelocity();
         }
+
+        if (getHowFastIsBall() == 0) {
+            slowBall();
+        } else if (getHowFastIsBall() == 2) fastBall();
     }
 
     public void clearObstacleY(float y) {
@@ -79,6 +79,8 @@ public class Ball {
         rect.bottom = y * 0.75f - ballHeight;
         xVelocity = x1;
         yVelocity = -y1;
+        if (howFastIsBall == 2) fastBall();
+        else if (howFastIsBall == 0) slowBall();
     }
 
     public float getMidValue() {
@@ -86,24 +88,20 @@ public class Ball {
     }
 
     public void slowBall(){
-//        if (yVelocity > 0)
-//            yVelocity = 200;
-//        else yVelocity =-200;
-//        xVelocity = 100;
-//        x2/=2;
-        xVelocity = xVelocity/2;
-        yVelocity = yVelocity/2;
-    }
-    public void normalball(){
-        xVelocity*=2;
-        yVelocity*=2;
+        xVelocity = xVelocity / 1.5f;
+        yVelocity = yVelocity / 1.5f;
     }
 
-    public boolean isStatus() {
-        return status;
+    public void fastBall() {
+        xVelocity *= 1.5;
+        yVelocity *= 1.5;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public int getHowFastIsBall() {
+        return howFastIsBall;
+    }
+
+    public void setHowFastIsBall(int howFastIsBall) {
+        this.howFastIsBall = howFastIsBall;
     }
 }

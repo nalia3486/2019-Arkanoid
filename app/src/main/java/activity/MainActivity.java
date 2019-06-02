@@ -274,7 +274,8 @@ public class MainActivity extends Activity {
                     lives--;
                     //soundPool.play(loseLifeID, 1, 1, 0, 0, 1);
                     mp3.start();
-
+                flag = false;
+                ball.setHowFastIsBall(1);
                     b.reset(screenX, screenY);
                     paddle = new Paddle(screenX, screenY);
                     paused = true;
@@ -298,24 +299,32 @@ public class MainActivity extends Activity {
                 flag = false;
                 switch(bonus.type){
                     case 1:
-                        paddle.setLength(2, screenX);
+                        paddle.setLength(2f, screenX);
                          break;
                     case 2:
-                        lives++;
+                        paddle.setLength(0.5f, screenX);
                         break;
                     case 3:
-                        ball.slowBall();
+                        if (ball.getHowFastIsBall() != 0) {
+                            ball.setHowFastIsBall(0);
+                            ball.slowBall();
+                        }
                         break;
-//                    default:
-//                        newBalls = true;
-//                        ball2 = new Ball();
-//                        ball3 = new Ball();
-//                        ball2.reset(screenX-50, screenY-100);
-//                        ball2.reset(screenX, screenY);
-//                        break;
-//                    default:
-//                        nextLevel();
-//                        break;
+                    case 4:
+                        if (ball.getHowFastIsBall() != 2) {
+                            ball.setHowFastIsBall(2);
+                            ball.fastBall();
+                        }
+                        break;
+                    case 5:
+                        lives++;
+                        break;
+                    case 6:
+                        nextLevel();
+                        break;
+                    default:
+                        score += 20;
+                        break;
                 }
             }
 
@@ -364,10 +373,20 @@ public class MainActivity extends Activity {
 
                         if (flag==false){
                             Random r = new Random();
-                            int n = r.nextInt(8);
-                            bonus = new Bonus(bricks[i].getRect());
-                            flag = true;
-                            bonus.type=n;
+                            int x = r.nextInt(50);
+                            if (x < 50) {
+                                bonus = new Bonus(bricks[i].getRect());
+                                flag = true;
+
+                                //set bonus probability
+                                if (x < 10) bonus.type = 1;
+                                else if (x < 20) bonus.type = 2;
+                                else if (x < 30) bonus.type = 3;
+                                else if (x < 40) bonus.type = 4;
+                                else if (x < 41) bonus.type = 5;
+                                else if (x < 42) bonus.type = 6;
+                                else bonus.type = 7;
+                            }
                         }
 
                         //soundPool.play(explodeID, 1, 1, 0, 0, 1);
@@ -430,16 +449,22 @@ public class MainActivity extends Activity {
                             paint.setColor(Color.argb(255, 255, 255, 255));
                             break;
                         case 2:
-                            paint.setColor(Color.argb(255, 255, 10, 10));
+                            paint.setColor(Color.argb(255, 255, 0, 191));
                             break;
                         case 3:
                             paint.setColor(Color.argb(255, 0, 0, 0));
                             break;
                         case 4:
-                            paint.setColor(Color.argb(255, 255, 0, 200));
+                            paint.setColor(Color.argb(255, 102, 51, 0));
+                            break;
+                        case 5:
+                            paint.setColor(Color.argb(255, 255, 0, 0));
+                            break;
+                        case 6:
+                            paint.setColor(Color.argb(255, 255, 255, 0));
                             break;
                         default:
-                            paint.setColor(Color.argb(255, 0, 200, 80));
+                            paint.setColor(Color.argb(255, 64, 255, 0));
                     }
                 canvas.drawRect(bonus.getRect(), paint);
                 }
@@ -474,6 +499,8 @@ public class MainActivity extends Activity {
             paint.setTextSize(90);
             paused = true;
             level++;
+            ball.setHowFastIsBall(1);
+            flag = false;
             mp4.start();
 
             if (level % 3 == 2)

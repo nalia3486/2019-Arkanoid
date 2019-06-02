@@ -92,7 +92,7 @@ public class Paddle {
         return (rect.right + rect.left)/2;
     }
 
-    public void setLength(int bonus, int screenX) {
+    public void setLength(float bonus, int screenX) {
         length = screenX / 6;
         length = length*bonus;
     }
